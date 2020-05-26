@@ -22,14 +22,15 @@ app.use(
     driver: 'memory',
     db: ratelimitStore,
     duration: 10000,
-    errorMessage: Boom.tooManyRequests(),
+    errorMessage: Boom.tooManyRequests('>30 requests in 10s; ratelimited'),
     id: (ctx) => ctx.ip,
-    max: 10,
+    max: 30,
     whitelist: (): boolean => false,
     blacklist: (): boolean => false,
   })
 );
 
+// This is separate to the middleware declarations as it'll be used elsewhere.
 const routerErrors = {
   throw: true,
   notImplemented: () => Boom.notImplemented(),
