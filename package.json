@@ -4,7 +4,7 @@
   "description": "The public API for Hydro.",
   "main": "dist/index.js",
   "scripts": {
-    "run": "tsc && node ."
+    "start": "tsc && node ."
   },
   "repository": {
     "type": "git",
