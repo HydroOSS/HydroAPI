@@ -3,10 +3,11 @@ import * as ratelimit from 'koa-ratelimit';
 import * as Boom from '@hapi/boom';
 import * as Journl from 'journl';
 import * as r from 'rethinkdb';
+import * as helmet from 'koa-helmet';
 
 import resourcesRouter from './routes/resources';
 
-export const logger = new Journl({});
+export const logger = new Journl();
 export let db;
 r.connect({ host: 'localhost', port: 28015 }, (err, conn) => {
   if (err) throw err;
@@ -29,6 +30,9 @@ app.use(
     blacklist: (): boolean => false,
   })
 );
+
+// Helmet middleware
+app.use(helmet());
 
 // This is separate to the middleware declarations as it'll be used elsewhere.
 const routerErrors = {

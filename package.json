@@ -19,8 +19,9 @@
   "dependencies": {
     "@hapi/boom": "^9.1.0",
     "@koa/router": "^8.0.8",
-    "journl": "^1.0.5",
+    "journl": "^1.0.6",
     "koa": "^2.12.0",
+    "koa-helmet": "^5.2.0",
     "koa-ratelimit": "^4.2.1",
     "rethinkdb": "^2.4.2"
   },
