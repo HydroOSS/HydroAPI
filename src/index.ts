@@ -9,7 +9,7 @@ import resourcesRouter from './routes/resources';
 
 export const logger = new Journl();
 export let db;
-r.connect({ host: '192.168.0.11', port: 28015 }, (err, conn) => {
+r.connect({ host: 'localhost', port: 28015 }, (err, conn) => {
   if (err) throw err;
   logger.success('Established database connection on port 28015');
   db = conn;
