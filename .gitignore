@@ -3,3 +3,6 @@ servers.json
 users.json
 giveaways.json
 strikes.json
+
+# Built binaries
+HydroAPI

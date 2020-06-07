@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/go-chi/chi"
+	"github.com/rs/cors"
 	log "github.com/sirupsen/logrus"
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 
@@ -35,8 +37,14 @@ func main() {
 		DB: session,
 	}}))
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	router := chi.NewRouter()
+	router.Use(cors.New(cors.Options{
+		AllowCredentials: true,
+		Debug:            false,
+	}).Handler)
+
+	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	router.Handle("/query", srv)
 
 	log.Infof("Attempting to start server at http://localhost:%s/\n", port)
 	log.Fatalln(http.ListenAndServe(":"+port, nil))
