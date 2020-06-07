@@ -53,9 +53,19 @@ type ComplexityRoot struct {
 		Participants func(childComplexity int) int
 	}
 
+	Merit struct {
+		GuildID     func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Offender    func(childComplexity int) int
+		Reason      func(childComplexity int) int
+		StaffMember func(childComplexity int) int
+	}
+
 	Query struct {
 		Giveaway func(childComplexity int, id *string) int
+		Merit    func(childComplexity int, id *string) int
 		Server   func(childComplexity int, id *string) int
+		Strike   func(childComplexity int, id *string) int
 		User     func(childComplexity int, id *string) int
 	}
 
@@ -80,6 +90,14 @@ type ComplexityRoot struct {
 		WelcomeM       func(childComplexity int) int
 	}
 
+	Strike struct {
+		GuildID     func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Offender    func(childComplexity int) int
+		Reason      func(childComplexity int) int
+		StaffMember func(childComplexity int) int
+	}
+
 	User struct {
 		Age           func(childComplexity int) int
 		Country       func(childComplexity int) int
@@ -102,6 +120,8 @@ type QueryResolver interface {
 	User(ctx context.Context, id *string) (*model.User, error)
 	Server(ctx context.Context, id *string) (*model.Server, error)
 	Giveaway(ctx context.Context, id *string) (*model.Giveaway, error)
+	Strike(ctx context.Context, id *string) (*model.Strike, error)
+	Merit(ctx context.Context, id *string) (*model.Merit, error)
 }
 type UserResolver interface {
 	Msgs(ctx context.Context, obj *model.User, guildID string) (*int, error)
@@ -171,6 +191,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Giveaway.Participants(childComplexity), true
 
+	case "Merit.guildID":
+		if e.complexity.Merit.GuildID == nil {
+			break
+		}
+
+		return e.complexity.Merit.GuildID(childComplexity), true
+
+	case "Merit.id":
+		if e.complexity.Merit.ID == nil {
+			break
+		}
+
+		return e.complexity.Merit.ID(childComplexity), true
+
+	case "Merit.offender":
+		if e.complexity.Merit.Offender == nil {
+			break
+		}
+
+		return e.complexity.Merit.Offender(childComplexity), true
+
+	case "Merit.reason":
+		if e.complexity.Merit.Reason == nil {
+			break
+		}
+
+		return e.complexity.Merit.Reason(childComplexity), true
+
+	case "Merit.staffMember":
+		if e.complexity.Merit.StaffMember == nil {
+			break
+		}
+
+		return e.complexity.Merit.StaffMember(childComplexity), true
+
 	case "Query.giveaway":
 		if e.complexity.Query.Giveaway == nil {
 			break
@@ -183,6 +238,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Giveaway(childComplexity, args["id"].(*string)), true
 
+	case "Query.merit":
+		if e.complexity.Query.Merit == nil {
+			break
+		}
+
+		args, err := ec.field_Query_merit_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Merit(childComplexity, args["id"].(*string)), true
+
 	case "Query.server":
 		if e.complexity.Query.Server == nil {
 			break
@@ -194,6 +261,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Server(childComplexity, args["id"].(*string)), true
+
+	case "Query.strike":
+		if e.complexity.Query.Strike == nil {
+			break
+		}
+
+		args, err := ec.field_Query_strike_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Strike(childComplexity, args["id"].(*string)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -332,6 +411,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Server.WelcomeM(childComplexity), true
+
+	case "Strike.guildID":
+		if e.complexity.Strike.GuildID == nil {
+			break
+		}
+
+		return e.complexity.Strike.GuildID(childComplexity), true
+
+	case "Strike.id":
+		if e.complexity.Strike.ID == nil {
+			break
+		}
+
+		return e.complexity.Strike.ID(childComplexity), true
+
+	case "Strike.offender":
+		if e.complexity.Strike.Offender == nil {
+			break
+		}
+
+		return e.complexity.Strike.Offender(childComplexity), true
+
+	case "Strike.reason":
+		if e.complexity.Strike.Reason == nil {
+			break
+		}
+
+		return e.complexity.Strike.Reason(childComplexity), true
+
+	case "Strike.staffMember":
+		if e.complexity.Strike.StaffMember == nil {
+			break
+		}
+
+		return e.complexity.Strike.StaffMember(childComplexity), true
 
 	case "User.age":
 		if e.complexity.User.Age == nil {
@@ -499,10 +613,19 @@ directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITI
   messageID: ID!
   participants: [ID]!
 }`, BuiltIn: false},
+	&ast.Source{Name: "graph/schemas/merits.graphql", Input: `type Merit {
+  id: ID!
+  guildID: ID!
+  offender: ID!
+  staffMember: ID!
+  reason: String!
+}`, BuiltIn: false},
 	&ast.Source{Name: "graph/schemas/query.graphql", Input: `type Query {
   user(id: ID): User
   server(id: ID): Server
   giveaway(id: ID): Giveaway
+  strike(id: ID): Strike
+  merit(id: ID): Merit
 }`, BuiltIn: false},
 	&ast.Source{Name: "graph/schemas/servers.graphql", Input: `# TODO(samonyt): Implement all agree method possibilities.
 enum AgreeMethod {
@@ -536,6 +659,13 @@ type Server {
 
   messagesToday: Int
 }`, BuiltIn: false},
+	&ast.Source{Name: "graph/schemas/strikes.graphql", Input: `type Strike {
+  id: ID!
+  guildID: ID!
+  offender: ID!
+  staffMember: ID!
+  reason: String!
+}`, BuiltIn: false},
 	&ast.Source{Name: "graph/schemas/users.graphql", Input: `# TODO(samonyt): Implement all gender possibilities.
 enum Gender {
   Male
@@ -556,7 +686,6 @@ type User @goModel() {
 
   married: Boolean
   marriedAt: Int
-  # TODO(samonyt): Document the difference between this and [[married]].
   marriedStatus: Boolean
   marriedTo: ID
 
@@ -599,7 +728,35 @@ func (ec *executionContext) field_Query_giveaway_args(ctx context.Context, rawAr
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_merit_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_server_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_strike_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *string
@@ -915,6 +1072,176 @@ func (ec *executionContext) _Giveaway_participants(ctx context.Context, field gr
 	return ec.marshalNID2ᚕᚖstring(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Merit_id(ctx context.Context, field graphql.CollectedField, obj *model.Merit) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Merit",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Merit_guildID(ctx context.Context, field graphql.CollectedField, obj *model.Merit) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Merit",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GuildID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Merit_offender(ctx context.Context, field graphql.CollectedField, obj *model.Merit) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Merit",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Offender, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Merit_staffMember(ctx context.Context, field graphql.CollectedField, obj *model.Merit) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Merit",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StaffMember, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Merit_reason(ctx context.Context, field graphql.CollectedField, obj *model.Merit) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Merit",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Reason, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_user(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1027,6 +1354,82 @@ func (ec *executionContext) _Query_giveaway(ctx context.Context, field graphql.C
 	res := resTmp.(*model.Giveaway)
 	fc.Result = res
 	return ec.marshalOGiveaway2ᚖgithubᚗcomᚋHydroOSSᚋHydroAPIᚋgraphᚋmodelᚐGiveaway(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_strike(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_strike_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Strike(rctx, args["id"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Strike)
+	fc.Result = res
+	return ec.marshalOStrike2ᚖgithubᚗcomᚋHydroOSSᚋHydroAPIᚋgraphᚋmodelᚐStrike(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_merit(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_merit_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Merit(rctx, args["id"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Merit)
+	fc.Result = res
+	return ec.marshalOMerit2ᚖgithubᚗcomᚋHydroOSSᚋHydroAPIᚋgraphᚋmodelᚐMerit(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1657,6 +2060,176 @@ func (ec *executionContext) _Server_messagesToday(ctx context.Context, field gra
 	res := resTmp.(*int)
 	fc.Result = res
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Strike_id(ctx context.Context, field graphql.CollectedField, obj *model.Strike) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Strike",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Strike_guildID(ctx context.Context, field graphql.CollectedField, obj *model.Strike) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Strike",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GuildID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Strike_offender(ctx context.Context, field graphql.CollectedField, obj *model.Strike) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Strike",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Offender, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Strike_staffMember(ctx context.Context, field graphql.CollectedField, obj *model.Strike) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Strike",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StaffMember, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Strike_reason(ctx context.Context, field graphql.CollectedField, obj *model.Strike) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Strike",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Reason, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -3223,6 +3796,53 @@ func (ec *executionContext) _Giveaway(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var meritImplementors = []string{"Merit"}
+
+func (ec *executionContext) _Merit(ctx context.Context, sel ast.SelectionSet, obj *model.Merit) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, meritImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Merit")
+		case "id":
+			out.Values[i] = ec._Merit_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "guildID":
+			out.Values[i] = ec._Merit_guildID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "offender":
+			out.Values[i] = ec._Merit_offender(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "staffMember":
+			out.Values[i] = ec._Merit_staffMember(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "reason":
+			out.Values[i] = ec._Merit_reason(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -3269,6 +3889,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_giveaway(ctx, field)
+				return res
+			})
+		case "strike":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_strike(ctx, field)
+				return res
+			})
+		case "merit":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_merit(ctx, field)
 				return res
 			})
 		case "__type":
@@ -3336,6 +3978,53 @@ func (ec *executionContext) _Server(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec._Server_verifiedRole(ctx, field, obj)
 		case "messagesToday":
 			out.Values[i] = ec._Server_messagesToday(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var strikeImplementors = []string{"Strike"}
+
+func (ec *executionContext) _Strike(ctx context.Context, sel ast.SelectionSet, obj *model.Strike) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, strikeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Strike")
+		case "id":
+			out.Values[i] = ec._Strike_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "guildID":
+			out.Values[i] = ec._Strike_guildID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "offender":
+			out.Values[i] = ec._Strike_offender(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "staffMember":
+			out.Values[i] = ec._Strike_staffMember(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "reason":
+			out.Values[i] = ec._Strike_reason(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4079,6 +4768,17 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return ec.marshalOInt2int(ctx, sel, *v)
 }
 
+func (ec *executionContext) marshalOMerit2githubᚗcomᚋHydroOSSᚋHydroAPIᚋgraphᚋmodelᚐMerit(ctx context.Context, sel ast.SelectionSet, v model.Merit) graphql.Marshaler {
+	return ec._Merit(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOMerit2ᚖgithubᚗcomᚋHydroOSSᚋHydroAPIᚋgraphᚋmodelᚐMerit(ctx context.Context, sel ast.SelectionSet, v *model.Merit) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Merit(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalOServer2githubᚗcomᚋHydroOSSᚋHydroAPIᚋgraphᚋmodelᚐServer(ctx context.Context, sel ast.SelectionSet, v model.Server) graphql.Marshaler {
 	return ec._Server(ctx, sel, &v)
 }
@@ -4088,6 +4788,17 @@ func (ec *executionContext) marshalOServer2ᚖgithubᚗcomᚋHydroOSSᚋHydroAPI
 		return graphql.Null
 	}
 	return ec._Server(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOStrike2githubᚗcomᚋHydroOSSᚋHydroAPIᚋgraphᚋmodelᚐStrike(ctx context.Context, sel ast.SelectionSet, v model.Strike) graphql.Marshaler {
+	return ec._Strike(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOStrike2ᚖgithubᚗcomᚋHydroOSSᚋHydroAPIᚋgraphᚋmodelᚐStrike(ctx context.Context, sel ast.SelectionSet, v *model.Strike) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Strike(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

@@ -1,0 +1,7 @@
+type Merit {
+  id: ID!
+  guildID: ID!
+  offender: ID!
+  staffMember: ID!
+  reason: String!
+}

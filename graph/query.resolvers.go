@@ -22,6 +22,14 @@ func (r *queryResolver) Giveaway(ctx context.Context, id *string) (*model.Giveaw
 	return &model.Giveaway{}, nil
 }
 
+func (r *queryResolver) Strike(ctx context.Context, id *string) (*model.Strike, error) {
+	return &model.Strike{}, nil
+}
+
+func (r *queryResolver) Merit(ctx context.Context, id *string) (*model.Merit, error) {
+	return &model.Merit{}, nil
+}
+
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 

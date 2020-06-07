@@ -18,6 +18,14 @@ type Giveaway struct {
 	Participants []*string `json:"participants"`
 }
 
+type Merit struct {
+	ID          string `json:"id"`
+	GuildID     string `json:"guildID"`
+	Offender    string `json:"offender"`
+	StaffMember string `json:"staffMember"`
+	Reason      string `json:"reason"`
+}
+
 type Server struct {
 	ID             string       `json:"id"`
 	Prefix         *string      `json:"prefix"`
@@ -37,6 +45,14 @@ type Server struct {
 	StaffRole      *string      `json:"staffRole"`
 	VerifiedRole   *string      `json:"verifiedRole"`
 	MessagesToday  *int         `json:"messagesToday"`
+}
+
+type Strike struct {
+	ID          string `json:"id"`
+	GuildID     string `json:"guildID"`
+	Offender    string `json:"offender"`
+	StaffMember string `json:"staffMember"`
+	Reason      string `json:"reason"`
 }
 
 type User struct {
