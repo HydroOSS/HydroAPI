@@ -23,19 +23,47 @@ func (r *queryResolver) User(ctx context.Context, id *string) (*model.User, erro
 }
 
 func (r *queryResolver) Server(ctx context.Context, id *string) (*model.Server, error) {
-	return &model.Server{}, nil
+	cursor, err := rethinkdb.DB("Hydro").Table("servers").Get(id).Run(r.DB)
+	if err != nil {
+		return nil, err
+	}
+
+	var server model.Server
+	cursor.One(&server)
+	return &server, nil
 }
 
 func (r *queryResolver) Giveaway(ctx context.Context, id *string) (*model.Giveaway, error) {
-	return &model.Giveaway{}, nil
+	cursor, err := rethinkdb.DB("Hydro").Table("giveaways").Get(id).Run(r.DB)
+	if err != nil {
+		return nil, err
+	}
+
+	var giveaway model.Giveaway
+	cursor.One(&giveaway)
+	return &giveaway, nil
 }
 
 func (r *queryResolver) Strike(ctx context.Context, id *string) (*model.Strike, error) {
-	return &model.Strike{}, nil
+	cursor, err := rethinkdb.DB("Hydro").Table("strikes").Get(id).Run(r.DB)
+	if err != nil {
+		return nil, err
+	}
+
+	var strike model.Strike
+	cursor.One(&strike)
+	return &strike, nil
 }
 
 func (r *queryResolver) Merit(ctx context.Context, id *string) (*model.Merit, error) {
-	return &model.Merit{}, nil
+	cursor, err := rethinkdb.DB("Hydro").Table("merits").Get(id).Run(r.DB)
+	if err != nil {
+		return nil, err
+	}
+
+	var merit model.Merit
+	cursor.One(&merit)
+	return &merit, nil
 }
 
 // Query returns generated.QueryResolver implementation.
