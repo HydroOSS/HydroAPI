@@ -413,15 +413,15 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	&ast.Source{Name: "graph/schemas/directives.graphqls", Input: `directive @goModel(model: String, models: [String!]) on OBJECT | INPUT_OBJECT | SCALAR | ENUM | INTERFACE | UNION
+	&ast.Source{Name: "graph/schemas/directives.graphql", Input: `directive @goModel(model: String, models: [String!]) on OBJECT | INPUT_OBJECT | SCALAR | ENUM | INTERFACE | UNION
 
 directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
 `, BuiltIn: false},
-	&ast.Source{Name: "graph/schemas/query.graphqls", Input: `type Query {
+	&ast.Source{Name: "graph/schemas/query.graphql", Input: `type Query {
   user(id: ID): User
   server(id: ID): Server
 }`, BuiltIn: false},
-	&ast.Source{Name: "graph/schemas/servers.graphqls", Input: `# TODO(samonyt): Implement all agree method possibilities.
+	&ast.Source{Name: "graph/schemas/servers.graphql", Input: `# TODO(samonyt): Implement all agree method possibilities.
 enum AgreeMethod {
   autorole
 }
@@ -453,7 +453,7 @@ type Server {
 
   messagesToday: Int
 }`, BuiltIn: false},
-	&ast.Source{Name: "graph/schemas/users.graphqls", Input: `# TODO(samonyt): Implement all gender possibilities.
+	&ast.Source{Name: "graph/schemas/users.graphql", Input: `# TODO(samonyt): Implement all gender possibilities.
 enum Gender {
   Male
   Female
