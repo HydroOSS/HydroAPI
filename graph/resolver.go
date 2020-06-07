@@ -6,7 +6,5 @@ package graph
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 
-// TODO: Document this.
-
-// Resolver struct
+// Resolver is the main resolver used by the API.
 type Resolver struct{}
