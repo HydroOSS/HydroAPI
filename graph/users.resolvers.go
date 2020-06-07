@@ -11,11 +11,17 @@ import (
 )
 
 func (r *userResolver) Msgs(ctx context.Context, obj *model.User, guildID string) (*int, error) {
-	msg := 1
-	return &msg, nil
+	res := 0
+	if msg, ok := r.msgs[guildID]; ok {
+		res = msg
+	}
+	return &res, nil
 }
 
 // User returns generated.UserResolver implementation.
-func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
+func (r *Resolver) User() generated.UserResolver { return &userResolver{r, nil} }
 
-type userResolver struct{ *Resolver }
+type userResolver struct {
+	*Resolver
+	msgs map[string]int
+}
