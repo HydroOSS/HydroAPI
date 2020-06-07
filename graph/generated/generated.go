@@ -8,6 +8,7 @@ import (
 	"errors"
 	"strconv"
 	"sync"
+	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -35,6 +36,7 @@ type Config struct {
 
 type ResolverRoot interface {
 	Query() QueryResolver
+	User() UserResolver
 }
 
 type DirectiveRoot struct {
@@ -88,6 +90,9 @@ type ComplexityRoot struct {
 type QueryResolver interface {
 	User(ctx context.Context, id *string) (*model.User, error)
 	Server(ctx context.Context, id *string) (*model.Server, error)
+}
+type UserResolver interface {
+	Msgs(ctx context.Context, obj *model.User, guildID string) (*int, error)
 }
 
 type executableSchema struct {
@@ -408,6 +413,10 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
+	&ast.Source{Name: "graph/schemas/directives.graphqls", Input: `directive @goModel(model: String, models: [String!]) on OBJECT | INPUT_OBJECT | SCALAR | ENUM | INTERFACE | UNION
+
+directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+`, BuiltIn: false},
 	&ast.Source{Name: "graph/schemas/query.graphqls", Input: `type Query {
   user(id: ID): User
   server(id: ID): Server
@@ -451,7 +460,7 @@ enum Gender {
   Other
 }
 
-type User {
+type User @goModel() {
   id: ID!
   age: String
   country: String
@@ -468,7 +477,7 @@ type User {
   marriedStatus: Boolean
   marriedTo: ID
 
-  msgs(guildID: ID!): Int
+  msgs(guildID: ID!): Int @goField(forceResolver: true)
   points: Int,
   quote: String
 }`, BuiltIn: false},
@@ -1632,7 +1641,7 @@ func (ec *executionContext) _User_msgs(ctx context.Context, field graphql.Collec
 		Object:   "User",
 		Field:    field,
 		Args:     nil,
-		IsMethod: false,
+		IsMethod: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
@@ -1645,7 +1654,7 @@ func (ec *executionContext) _User_msgs(ctx context.Context, field graphql.Collec
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Msgs, nil
+		return ec.resolvers.User().Msgs(rctx, obj, args["guildID"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2911,7 +2920,7 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 		case "id":
 			out.Values[i] = ec._User_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "age":
 			out.Values[i] = ec._User_age(ctx, field, obj)
@@ -2934,7 +2943,16 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 		case "marriedTo":
 			out.Values[i] = ec._User_marriedTo(ctx, field, obj)
 		case "msgs":
-			out.Values[i] = ec._User_msgs(ctx, field, obj)
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_msgs(ctx, field, obj)
+				return res
+			})
 		case "points":
 			out.Values[i] = ec._User_points(ctx, field, obj)
 		case "quote":
@@ -3597,6 +3615,38 @@ func (ec *executionContext) unmarshalOString2string(ctx context.Context, v inter
 
 func (ec *executionContext) marshalOString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	return graphql.MarshalString(v)
+}
+
+func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOString2ᚕᚖstring(ctx context.Context, v interface{}) ([]*string, error) {

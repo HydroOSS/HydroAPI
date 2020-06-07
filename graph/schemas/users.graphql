@@ -5,7 +5,7 @@ enum Gender {
   Other
 }
 
-type User {
+type User @goModel() {
   id: ID!
   age: String
   country: String
@@ -22,7 +22,7 @@ type User {
   marriedStatus: Boolean
   marriedTo: ID
 
-  msgs(guildID: ID!): Int
+  msgs(guildID: ID!): Int @goField(forceResolver: true)
   points: Int,
   quote: String
 }
