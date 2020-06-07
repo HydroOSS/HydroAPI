@@ -1,0 +1,28 @@
+# TODO(samonyt): Implement all gender possibilities.
+enum Gender {
+  Male
+  Female
+  Other
+}
+
+type User {
+  id: ID!
+  age: String
+  country: String
+
+  gayMsg: String
+  gayPercentage: String
+  gender: Gender
+
+  lastDaily: Int
+
+  married: Boolean
+  marriedAt: Int
+  # TODO(samonyt): Document the difference between this and [[married]].
+  marriedStatus: Boolean
+  marriedTo: ID
+
+  msgs(guildID: ID!): Int
+  points: Int,
+  quote: String
+}

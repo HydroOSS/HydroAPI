@@ -1,0 +1,4 @@
+type Query {
+  user(id: ID): User
+  server(id: ID): Server
+}

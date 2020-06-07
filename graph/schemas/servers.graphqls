@@ -1,0 +1,32 @@
+# TODO(samonyt): Implement all agree method possibilities.
+enum AgreeMethod {
+  autorole
+}
+
+type Server {
+  id: ID!
+  
+  prefix: String
+  silenced: Boolean
+
+  agreeMethod: AgreeMethod
+  antiAbuse: Boolean
+  antiInvite: Boolean
+  antiSpam: Boolean
+
+  approveChannel: ID
+  disabledCmds: [String]
+
+  leaveM: String
+  welcomeM: String
+  
+  logChannel: ID
+  mainChannel: ID
+
+  memberRole: ID
+  mutedRole: ID
+  staffRole: ID
+  verifiedRole: ID
+
+  messagesToday: Int
+}
