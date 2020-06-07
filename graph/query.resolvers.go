@@ -8,10 +8,18 @@ import (
 
 	"github.com/HydroOSS/HydroAPI/graph/generated"
 	"github.com/HydroOSS/HydroAPI/graph/model"
+	"gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
 func (r *queryResolver) User(ctx context.Context, id *string) (*model.User, error) {
-	return &model.User{}, nil
+	cursor, err := rethinkdb.DB("Hydro").Table("servers").Get(id).Run(r.DB)
+	if err != nil {
+		return nil, err
+	}
+
+	var user model.User
+	cursor.One(&user)
+	return &user, nil
 }
 
 func (r *queryResolver) Server(ctx context.Context, id *string) (*model.Server, error) {
