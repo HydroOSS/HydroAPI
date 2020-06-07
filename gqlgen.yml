@@ -1,5 +1,5 @@
 schema:
-  - graph/schemas/*.graphqls
+  - graph/schemas/*.graphql
 
 # Where should the generated server code go?
 exec:
