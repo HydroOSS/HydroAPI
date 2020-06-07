@@ -5,14 +5,14 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/HydroOSS/HydroAPI/graph/generated"
 	"github.com/HydroOSS/HydroAPI/graph/model"
 )
 
 func (r *userResolver) Msgs(ctx context.Context, obj *model.User, guildID string) (*int, error) {
-	panic(fmt.Errorf("not implemented"))
+	msg := 1
+	return &msg, nil
 }
 
 // User returns generated.UserResolver implementation.
