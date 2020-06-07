@@ -8,11 +8,11 @@ import (
 
 	"github.com/HydroOSS/HydroAPI/graph/generated"
 	"github.com/HydroOSS/HydroAPI/graph/model"
-	"gopkg.in/rethinkdb/rethinkdb-go.v6"
+	rethinkdb "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
 func (r *queryResolver) User(ctx context.Context, id *string) (*model.User, error) {
-	cursor, err := rethinkdb.DB("Hydro").Table("servers").Get(id).Run(r.DB)
+	cursor, err := rethinkdb.DB("Hydro").Table("users").Get(id).Run(r.DB)
 	if err != nil {
 		return nil, err
 	}
