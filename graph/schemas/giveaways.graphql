@@ -1,4 +1,4 @@
-type Giveaways {
+type Giveaway {
   id: ID!
   enabled: Boolean!
   guildID: ID!

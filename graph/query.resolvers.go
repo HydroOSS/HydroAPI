@@ -18,6 +18,10 @@ func (r *queryResolver) Server(ctx context.Context, id *string) (*model.Server, 
 	return &model.Server{}, nil
 }
 
+func (r *queryResolver) Giveaway(ctx context.Context, id *string) (*model.Giveaway, error) {
+	return &model.Giveaway{}, nil
+}
+
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 

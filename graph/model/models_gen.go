@@ -8,6 +8,16 @@ import (
 	"strconv"
 )
 
+type Giveaway struct {
+	ID           string    `json:"id"`
+	Enabled      bool      `json:"enabled"`
+	GuildID      string    `json:"guildID"`
+	Host         string    `json:"host"`
+	Item         string    `json:"item"`
+	MessageID    string    `json:"messageID"`
+	Participants []*string `json:"participants"`
+}
+
 type Server struct {
 	ID             string       `json:"id"`
 	Prefix         *string      `json:"prefix"`

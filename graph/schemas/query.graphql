@@ -1,4 +1,5 @@
 type Query {
   user(id: ID): User
   server(id: ID): Server
+  giveaway(id: ID): Giveaway
 }

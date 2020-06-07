@@ -43,9 +43,20 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	Giveaway struct {
+		Enabled      func(childComplexity int) int
+		GuildID      func(childComplexity int) int
+		Host         func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Item         func(childComplexity int) int
+		MessageID    func(childComplexity int) int
+		Participants func(childComplexity int) int
+	}
+
 	Query struct {
-		Server func(childComplexity int, id *string) int
-		User   func(childComplexity int, id *string) int
+		Giveaway func(childComplexity int, id *string) int
+		Server   func(childComplexity int, id *string) int
+		User     func(childComplexity int, id *string) int
 	}
 
 	Server struct {
@@ -90,6 +101,7 @@ type ComplexityRoot struct {
 type QueryResolver interface {
 	User(ctx context.Context, id *string) (*model.User, error)
 	Server(ctx context.Context, id *string) (*model.Server, error)
+	Giveaway(ctx context.Context, id *string) (*model.Giveaway, error)
 }
 type UserResolver interface {
 	Msgs(ctx context.Context, obj *model.User, guildID string) (*int, error)
@@ -109,6 +121,67 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "Giveaway.enabled":
+		if e.complexity.Giveaway.Enabled == nil {
+			break
+		}
+
+		return e.complexity.Giveaway.Enabled(childComplexity), true
+
+	case "Giveaway.guildID":
+		if e.complexity.Giveaway.GuildID == nil {
+			break
+		}
+
+		return e.complexity.Giveaway.GuildID(childComplexity), true
+
+	case "Giveaway.host":
+		if e.complexity.Giveaway.Host == nil {
+			break
+		}
+
+		return e.complexity.Giveaway.Host(childComplexity), true
+
+	case "Giveaway.id":
+		if e.complexity.Giveaway.ID == nil {
+			break
+		}
+
+		return e.complexity.Giveaway.ID(childComplexity), true
+
+	case "Giveaway.item":
+		if e.complexity.Giveaway.Item == nil {
+			break
+		}
+
+		return e.complexity.Giveaway.Item(childComplexity), true
+
+	case "Giveaway.messageID":
+		if e.complexity.Giveaway.MessageID == nil {
+			break
+		}
+
+		return e.complexity.Giveaway.MessageID(childComplexity), true
+
+	case "Giveaway.participants":
+		if e.complexity.Giveaway.Participants == nil {
+			break
+		}
+
+		return e.complexity.Giveaway.Participants(childComplexity), true
+
+	case "Query.giveaway":
+		if e.complexity.Query.Giveaway == nil {
+			break
+		}
+
+		args, err := ec.field_Query_giveaway_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Giveaway(childComplexity, args["id"].(*string)), true
 
 	case "Query.server":
 		if e.complexity.Query.Server == nil {
@@ -417,9 +490,19 @@ var sources = []*ast.Source{
 
 directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
 `, BuiltIn: false},
+	&ast.Source{Name: "graph/schemas/giveaways.graphql", Input: `type Giveaway {
+  id: ID!
+  enabled: Boolean!
+  guildID: ID!
+  host: ID!
+  item: String!
+  messageID: ID!
+  participants: [ID]!
+}`, BuiltIn: false},
 	&ast.Source{Name: "graph/schemas/query.graphql", Input: `type Query {
   user(id: ID): User
   server(id: ID): Server
+  giveaway(id: ID): Giveaway
 }`, BuiltIn: false},
 	&ast.Source{Name: "graph/schemas/servers.graphql", Input: `# TODO(samonyt): Implement all agree method possibilities.
 enum AgreeMethod {
@@ -502,6 +585,20 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_giveaway_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_server_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -580,6 +677,244 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
+func (ec *executionContext) _Giveaway_id(ctx context.Context, field graphql.CollectedField, obj *model.Giveaway) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Giveaway",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Giveaway_enabled(ctx context.Context, field graphql.CollectedField, obj *model.Giveaway) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Giveaway",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Enabled, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Giveaway_guildID(ctx context.Context, field graphql.CollectedField, obj *model.Giveaway) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Giveaway",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GuildID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Giveaway_host(ctx context.Context, field graphql.CollectedField, obj *model.Giveaway) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Giveaway",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Host, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Giveaway_item(ctx context.Context, field graphql.CollectedField, obj *model.Giveaway) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Giveaway",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Item, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Giveaway_messageID(ctx context.Context, field graphql.CollectedField, obj *model.Giveaway) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Giveaway",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MessageID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Giveaway_participants(ctx context.Context, field graphql.CollectedField, obj *model.Giveaway) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Giveaway",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Participants, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*string)
+	fc.Result = res
+	return ec.marshalNID2ᚕᚖstring(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_user(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -654,6 +989,44 @@ func (ec *executionContext) _Query_server(ctx context.Context, field graphql.Col
 	res := resTmp.(*model.Server)
 	fc.Result = res
 	return ec.marshalOServer2ᚖgithubᚗcomᚋHydroOSSᚋHydroAPIᚋgraphᚋmodelᚐServer(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_giveaway(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_giveaway_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Giveaway(rctx, args["id"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Giveaway)
+	fc.Result = res
+	return ec.marshalOGiveaway2ᚖgithubᚗcomᚋHydroOSSᚋHydroAPIᚋgraphᚋmodelᚐGiveaway(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2793,6 +3166,63 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** object.gotpl ****************************
 
+var giveawayImplementors = []string{"Giveaway"}
+
+func (ec *executionContext) _Giveaway(ctx context.Context, sel ast.SelectionSet, obj *model.Giveaway) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, giveawayImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Giveaway")
+		case "id":
+			out.Values[i] = ec._Giveaway_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "enabled":
+			out.Values[i] = ec._Giveaway_enabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "guildID":
+			out.Values[i] = ec._Giveaway_guildID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "host":
+			out.Values[i] = ec._Giveaway_host(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "item":
+			out.Values[i] = ec._Giveaway_item(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "messageID":
+			out.Values[i] = ec._Giveaway_messageID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "participants":
+			out.Values[i] = ec._Giveaway_participants(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -2828,6 +3258,17 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_server(ctx, field)
+				return res
+			})
+		case "giveaway":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_giveaway(ctx, field)
 				return res
 			})
 		case "__type":
@@ -3241,6 +3682,35 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
+func (ec *executionContext) unmarshalNID2ᚕᚖstring(ctx context.Context, v interface{}) ([]*string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]*string, len(vSlice))
+	for i := range vSlice {
+		res[i], err = ec.unmarshalOID2ᚖstring(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNID2ᚕᚖstring(ctx context.Context, sel ast.SelectionSet, v []*string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalOID2ᚖstring(ctx, sel, v[i])
+	}
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	return graphql.UnmarshalString(v)
 }
@@ -3550,6 +4020,17 @@ func (ec *executionContext) marshalOGender2ᚖgithubᚗcomᚋHydroOSSᚋHydroAPI
 		return graphql.Null
 	}
 	return v
+}
+
+func (ec *executionContext) marshalOGiveaway2githubᚗcomᚋHydroOSSᚋHydroAPIᚋgraphᚋmodelᚐGiveaway(ctx context.Context, sel ast.SelectionSet, v model.Giveaway) graphql.Marshaler {
+	return ec._Giveaway(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOGiveaway2ᚖgithubᚗcomᚋHydroOSSᚋHydroAPIᚋgraphᚋmodelᚐGiveaway(ctx context.Context, sel ast.SelectionSet, v *model.Giveaway) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Giveaway(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOID2string(ctx context.Context, v interface{}) (string, error) {
