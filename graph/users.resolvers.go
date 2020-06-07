@@ -19,6 +19,4 @@ func (r *userResolver) Msgs(ctx context.Context, obj *model.User, guildID string
 // User returns generated.UserResolver implementation.
 func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
 
-type userResolver struct {
-	*Resolver
-}
+type userResolver struct{ *Resolver }
