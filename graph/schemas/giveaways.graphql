@@ -1,0 +1,9 @@
+type Giveaways {
+  id: ID!
+  enabled: Boolean!
+  guildID: ID!
+  host: ID!
+  item: String!
+  messageID: ID!
+  participants: [ID]!
+}
