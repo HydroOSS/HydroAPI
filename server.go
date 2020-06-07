@@ -47,5 +47,5 @@ func main() {
 	router.Handle("/query", srv)
 
 	log.Infof("Attempting to start server at http://localhost:%s/\n", port)
-	log.Fatalln(http.ListenAndServe(":"+port, nil))
+	log.Fatalln(http.ListenAndServe(":"+port, router))
 }
